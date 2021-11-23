@@ -1,7 +1,9 @@
 import numpy as np
 import math
+import os
 import scipy
 from scipy.fftpack import fft
+from scipy.io.wavfile import read
 
 
 #A.Tuning Frequency Estimation
@@ -102,4 +104,25 @@ def detect_key(x, blockSize, hopSize, fs, bTune):
     for i in arrange(0, 1):
         
     return keyEstimate
+
+#C. Evaluation
+
+def eval_tfe(pathToAudio, pathToGT):
+    audio_files = os.listdir(pathToAudio)
+    gt_files = os.listdir(pathToGT)
+    audio_files.sort()
+    gt_files.sort()
+
+    deviations = np.zeros(len(audio_files))
+
+    for i, (audio_file, gt_file) in enumerate(zip(audio_files, gt_files)):
+        sr, y = read(audio_file)
+        tfInHz_est = estimate_tuning_freq(y, 4096, 2048, sr)
+        tfInHz_gt = np.loadtxt(gt_file)
+        diff_in_cents = 1200 * np.log(tfInHz_est/tfInHz_gt)
+        deviations[i] = diff_in_cents
+
+    avgDeviation = np.mean(deviations)
+
+    return avgDeviation
 
