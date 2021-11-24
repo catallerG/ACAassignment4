@@ -6,15 +6,6 @@ from scipy.io.wavfile import read
 
 
 #A.Tuning Frequency Estimation
-def get_spectral_peaks(X):
-    spec = X.T
-    spectralPeaks = []
-    for i, frame in enumerate(spec):
-        spectralPeaks.append(frame.argsort()[frame.shape()-20, frame.shape()-1])
-    spectralPeaks = np.array(spectralPeaks)
-    return spectralPeaks
-
-
 def block_audio(x, blockSize, hopSize, fs):
     numBlocks = math.ceil(x.size / hopSize)
     xb = np.zeros([numBlocks, blockSize])
@@ -27,38 +18,42 @@ def block_audio(x, blockSize, hopSize, fs):
     return xb, t
 
 
-def compute_spectrogram(xb, fs):
-    numBlocks = xb.shape[0]
-    afWindow = 0.5 - (0.5 * np.cos(2 * np.pi / xb.shape[1] * np.arange(xb.shape[1])))
-    X = np.zeros([math.ceil(xb.shape[1]/2+1), numBlocks])
-    
-    for n in range(0, numBlocks):
-        # apply window
-        tmp = abs(fft(xb[n,:] * afWindow))*2/xb.shape[1]
-    
-        # compute magnitude spectrum
-        X[:,n] = tmp[range(math.ceil(tmp.size/2+1))] 
-        # normalize
-        X[[0,math.ceil(tmp.size/2)],n]= X[[0,math.ceil(tmp.size/2)],n]/np.sqrt(2) 
-
-    return X
+def get_spectral_peaks(X):
+    spectralPeaks = []
+    for i, frame in enumerate(X):
+        spectralPeaks.append(frame.argsort()[np.shape(frame)[0]-20:np.shape(frame)[0]])
+    spectralPeaks = np.array(spectralPeaks)
+    return spectralPeaks
 
 
 def estimate_tuning_freq(x, blockSize, hopSize, fs):
     xb, t = block_audio(x, blockSize, hopSize, fs)
-    X = compute_spectrogram(xb, fs)
+    X = scipy.fftpack.fft(xb, n=blockSize)
     spectralPeaks = get_spectral_peaks(X)
-    tfInHz = []
+    tfInHz = np.zeros((0, 20))
     for i, value in enumerate(spectralPeaks):
-        valueInHz = fs*value/blockSize
-        valueInCent = 1200 * math.log2(valueInHz/440)
-        if np.max(np.absolute(valueInCent%100)) >= np.max(100-np.absolute(valueInCent%100)):
-            tfInHz.append(np.max(valueInCent%100))
-        else:
-            tfInHz.append(np.absolute(valueInCent%100)-100)
-    tfInHz = max(tfInHz)
-    tfInHz = 440 * math.pow(2, tfInHz/1200)
-    return tfInHz
+        value = fs*value/blockSize
+        valueInCent = []
+        for count_in_value in np.arange(np.shape(spectralPeaks)[1]):
+            if value[count_in_value] != 0:
+                valueInCent.append(1200 * np.log2(value[count_in_value] / 440))
+            else:
+                valueInCent.append(0)
+        valueInCent = np.array(valueInCent)
+        valueInCent = valueInCent % 100
+        for j, deviation in enumerate(valueInCent):
+            if deviation > 50:
+                valueInCent[j] = deviation - 100
+        tfInHz = np.vstack((tfInHz, valueInCent))
+    m, n = tfInHz.shape
+    index = int(np.absolute(tfInHz).argmax())
+    x = int(index / n)
+    y = index % n
+    tfInHz = tfInHz[x][y]
+    if tfInHz < 0:
+        return -(440 * math.pow(2, abs(tfInHz)/1200))
+    else:
+        return 440 * math.pow(2, tfInHz / 1200)
 
 
 #B.Key Detection
