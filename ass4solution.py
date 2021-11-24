@@ -111,8 +111,8 @@ def detect_key(x, blockSize, hopSize, fs, bTune):
     else: 
         raise NameError('Input Argument (bTune) should be either 0 or 1 ')
     
-    xb = block_audio(x, blockSize, hopSize, fs)
-    X = compute_spectrogram(xb, fs)
+    xb, _ = block_audio(x, blockSize, hopSize, fs)
+    X, _ = compute_spectrogram(xb, fs)
     pitchChroma = extract_pitch_chroma(X, fs, tfInHz)
     
     minimum_dist = np.ones(1) + 0.1
