@@ -91,7 +91,7 @@ def detect_key(x, blockSize, hopSize, fs, bTune):
     major_template = t_pc[0]
     major_norm = major_template/np.sum(major_template)
     
-    minor_template = t_pc[0]
+    minor_template = t_pc[1]
     minor_norm = minor_template/np.sum(minor_template)
     
     if bTune == True:
