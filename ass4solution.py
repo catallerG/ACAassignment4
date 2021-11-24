@@ -51,16 +51,13 @@ def estimate_tuning_freq(x, blockSize, hopSize, fs):
     x = int(index / n)
     y = index % n
     tfInHz = tfInHz[x][y]
-    if tfInHz < 0:
-        return -(440 * math.pow(2, abs(tfInHz)/1200))
-    else:
-        return 440 * math.pow(2, tfInHz / 1200)
+    return 440 * math.pow(2, abs(tfInHz) / 1200)
 
 
 #B.Key Detection
-def freq2class(freq):
-    if freq != 0:
-        key = round(12 * math.log(freq / 440, 2)) + 69
+def freq2class(freq, tfInHz):
+    if freq > 0:
+        key = round(12 * math.log(freq / tfInHz, 2)) + 69
     else:
         key = 0
     return key % 12
