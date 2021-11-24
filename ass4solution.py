@@ -112,7 +112,7 @@ def detect_key(x, blockSize, hopSize, fs, bTune):
         raise NameError('Input Argument (bTune) should be either 0 or 1 ')
     
     xb, _ = block_audio(x, blockSize, hopSize, fs)
-    X, _ = compute_spectrogram(xb, fs)
+    X = compute_spectrogram(xb, fs)
     pitchChroma = extract_pitch_chroma(X, fs, tfInHz)
     
     minimum_dist = np.ones(1) + 0.1
@@ -200,3 +200,5 @@ def evaluate(pathToAudioKey, pathToGTKey,pathToAudioTf, pathToGTTf):
 
 
 
+eval_key_detection("/Users/bryceirvin/Desktop/GT/Fall_2021/aca/new/ACAassignment4/key_tf/key_tf/tuning_eval/audio", 
+"/Users/bryceirvin/Desktop/GT/Fall_2021/aca/new/ACAassignment4/key_tf/key_tf/tuning_eval/GT")
