@@ -1,7 +1,6 @@
 import numpy as np
 import math
 import os
-import scipy
 from scipy.fftpack import fft
 from scipy.io.wavfile import read
 
@@ -89,9 +88,15 @@ def detect_key(x, blockSize, hopSize, fs, bTune):
     
     t_pc = np.array([[6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88], [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17]])
     
-    if bTune == 1:
+    major_template = t_pc[0]
+    major_norm = major_template/np.sum(major_template)
+    
+    minor_template = t_pc[0]
+    minor_norm = minor_template/np.sum(minor_template)
+    
+    if bTune == True:
         tfInHz = estimate_tuning_freq(x, blockSize, hopSize, fs)
-    elif bTune == 0:
+    elif bTune == False:
         tfInHz = 440
     else: 
         raise NameError('Input Argument (bTune) should be either 0 or 1 ')
@@ -100,9 +105,25 @@ def detect_key(x, blockSize, hopSize, fs, bTune):
     X = compute_spectrogram(xb, fs)
     pitchChroma = extract_pitch_chroma(X, fs, tfInHz)
     
-    
-    for i in arrange(0, 1):
+    minimum_dist = np.ones(1) + 0.1
+    minimum_ndx = np.zeros(1) 
+    for i in np.arange(0, 12):
         
+        pitchChroma_Shifted = np.concatenate((pitchChroma[i:len(pitchChroma)], pitchChroma[0:i]))
+        majDistance = np.sqrt(np.sum((pitchChroma_Shifted - major_norm)**2))
+        
+        if majDistance < minimum_dist:
+            minimum_dist = majDistance
+            minimum_ndx = i
+            
+        minDistance = np.sqrt(np.sum((pitchChroma_Shifted - minor_norm)**2))
+        
+        if minDistance < minimum_dist:
+            minimum_dist = majDistance
+            minimum_ndx = i + 12
+        
+    keyEstimate = minimum_ndx
+    
     return keyEstimate
 
 #C. Evaluation
