@@ -126,5 +126,40 @@ def eval_tfe(pathToAudio, pathToGT):
 
     return avgDeviation
 
+def eval_key_detection(pathToAudio, pathToGT):
+    audio_files = os.listdir(pathToAudio)
+    gt_files = os.listdir(pathToGT)
+    audio_files.sort()
+    gt_files.sort()
+
+    results_with_est = np.zeros(len(audio_files))
+    results_without_est = np.zeros(len(audio_files))
+
+    for i, (audio_file, gt_file) in enumerate(zip(audio_files, gt_files)):
+        sr, y = read(os.path.join(pathToAudio, audio_file))
+        with_est = detect_key(y, 4096, 2048, sr, True)
+        without_est = detect_key(y, 4096, 2048, sr, False)
+        gt = np.loadtxt(os.path.join(pathToGT, gt_file))
+
+        if with_est==gt:
+            results_with_est[i] = 1
+        else:
+            results_with_est[i] = 0
+
+        if without_est==gt:
+            results_without_est[i] = 1
+        else:
+            results_without_est[i] = 0
+
+    accuracy_with_est = np.sum(results_with_est) / len(results_with_est)
+    accuracy_without_est = np.sum(results_without_est) / len(results_without_est)
+
+    accuracy = np.array([[accuracy_with_est, accuracy_without_est]])
+
+    return accuracy
+
+
+
+
 
 
