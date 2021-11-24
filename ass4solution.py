@@ -67,13 +67,13 @@ def freq2class(freq):
 
 
 def extract_pitch_chroma(X, fs, tfInHz):
-    pitchChroma = np.zeros((12, X.shape[1]))
+    X=X.T
+    pitchChroma = np.zeros((12, X.shape[0]))
     for i, frame in enumerate(X):
-        X[:, i] = X[:, i] - tfInHz
         for freq in np.arange(start=int(X.shape[1] * 130.81 / fs), stop=int(X.shape[1] * 987.77 / fs)):
-            if X[freq][i] > 0:
-                pitchChroma[freq2class(fs * (freq / X.shape[1]))][i] = \
-                pitchChroma[freq2class(fs * (freq / X.shape[1]))][i] + X[freq][i]
+            if X[i][freq] > 0:
+                pitchChroma[freq2class(fs * (freq / X.shape[1]), tfInHz)][i] = \
+                    pitchChroma[freq2class(fs * (freq / X.shape[1]), tfInHz)][i] + X[i][freq]
         if np.max(pitchChroma[:, i]) == 0:
             continue
         pitchChroma[:, i] = pitchChroma[:, i] / np.linalg.norm(pitchChroma[:, i])
