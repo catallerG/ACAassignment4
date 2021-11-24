@@ -158,6 +158,12 @@ def eval_key_detection(pathToAudio, pathToGT):
 
     return accuracy
 
+def evaluate(pathToAudioKey, pathToGTKey,pathToAudioTf, pathToGTTf):
+    avg_accuracy = eval_key_detection(pathToAudioKey, pathToGTKey)
+    avg_deviationInCent = eval_tfe(pathToAudioTf, pathToGTTf)
+
+    return avg_accuracy, avg_deviationInCent
+
 
 
 
