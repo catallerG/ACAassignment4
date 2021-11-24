@@ -120,13 +120,13 @@ def detect_key(x, blockSize, hopSize, fs, bTune):
     for i in np.arange(0, 12):
         
         pitchChroma_Shifted = np.concatenate((pitchChroma[i:len(pitchChroma)], pitchChroma[0:i]))
-        majDistance = np.sqrt(np.sum((pitchChroma_Shifted - major_norm)**2))
+        majDistance = np.sqrt(np.sum((pitchChroma_Shifted - np.expand_dims(major_norm, axis=1))**2))
         
         if majDistance < minimum_dist:
             minimum_dist = majDistance
             minimum_ndx = i
             
-        minDistance = np.sqrt(np.sum((pitchChroma_Shifted - minor_norm)**2))
+        minDistance = np.sqrt(np.sum((pitchChroma_Shifted - np.expand_dims(minor_norm, axis=1))**2))
         
         if minDistance < minimum_dist:
             minimum_dist = majDistance
@@ -200,5 +200,5 @@ def evaluate(pathToAudioKey, pathToGTKey,pathToAudioTf, pathToGTTf):
 
 
 
-eval_key_detection("/Users/bryceirvin/Desktop/GT/Fall_2021/aca/new/ACAassignment4/key_tf/key_tf/tuning_eval/audio", 
-"/Users/bryceirvin/Desktop/GT/Fall_2021/aca/new/ACAassignment4/key_tf/key_tf/tuning_eval/GT")
+print(eval_key_detection("/Users/bryceirvin/Desktop/GT/Fall_2021/aca/new/ACAassignment4/key_tf/key_tf/tuning_eval/audio", 
+"/Users/bryceirvin/Desktop/GT/Fall_2021/aca/new/ACAassignment4/key_tf/key_tf/tuning_eval/GT"))
