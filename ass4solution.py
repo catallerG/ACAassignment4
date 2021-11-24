@@ -81,10 +81,6 @@ def compute_spectrogram(xb, fs):
     numBlocks = xb.shape[0]
     afWindow = 0.5 - (0.5 * np.cos(2 * np.pi / xb.shape[1] * np.arange(xb.shape[1])))
     X = np.zeros([math.ceil(xb.shape[1]/2+1), numBlocks])
-    f_min = 0
-    f_max = fs/2
-    f = np.linspace(f_min, f_max, xb.shape[0]+2)
-    fInHz = f[1:xb.shape[0]+1]
     
     for n in range(0, numBlocks):
         # apply window
@@ -95,7 +91,7 @@ def compute_spectrogram(xb, fs):
         # normalize
         X[[0,math.ceil(tmp.size/2)],n]= X[[0,math.ceil(tmp.size/2)],n]/np.sqrt(2) 
 
-    return X, fInHz
+    return X
 
 
 def detect_key(x, blockSize, hopSize, fs, bTune):
