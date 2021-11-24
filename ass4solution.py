@@ -158,7 +158,7 @@ def eval_tfe(pathToAudio, pathToGT):
         tfInHz_est = estimate_tuning_freq(y, 4096, 2048, sr)
         tfInHz_gt = np.loadtxt(os.path.join(pathToGT, gt_file))
         diff_in_cents = 1200 * np.log(tfInHz_est/tfInHz_gt)
-        deviations[i] = diff_in_cents
+        deviations[i] = np.abs(diff_in_cents)
 
     avgDeviation = np.mean(deviations)
 
